@@ -81,11 +81,27 @@ class Game:
         self.state: GameState = GameState.UNFINISHED
         self.turn: Color = Color.BLACK
         self.last_changes: list[list[tuple[int, int, Cell]]] = []
-        self.black_count: int = (size // 2 - 1 + size % 2) * (size // 2) + \
-                                (size // 2 - 1 + size % 2) // 2 * int(size % 2)
+        self.black_count: int = self._initial_black_count()
         self.white_count: int = self.black_count
         self.tie_counter: int = 0
         self.tie_max: int = size * size // 2
+
+    def _initial_black_count(self) -> int:
+        """
+        Calculate the initial number of black checkers
+
+        Checkers fill all rows despite one in case size is odd
+        or despite two in case size is even
+
+        Returns
+        -------
+        int
+            number of black checkers at the start of the game
+        """
+
+        size = self.board.SIZE
+        bc = (size // 2 - 1 + size % 2) * (size // 2)
+        bc += (size // 2 - 1 + size % 2) // 2 * int(size % 2)
 
     def undo(self) -> None:
         """
