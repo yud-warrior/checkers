@@ -1,3 +1,17 @@
+"""This module is for representing moves of the English checkers game.
+
+Move object consists of the start positions and sequence of the steps
+that should be done from oint to point/ Each step is a next position
+for checker.
+
+This file can also be imported as module and contains the following
+classes:
+
+    * WrongMoveError - (Exception) exception for wrong move
+    * Move - represents player's move.
+"""
+
+
 from __future__ import annotations
 
 
@@ -8,6 +22,7 @@ class WrongMoveError(Exception):
 class Move:
     """
     Class represents player's possible move.
+
     Move is a sequence of steps for a single checker.
     Steps are tuples of two 0-indexed coordinates.
     Start is a current checker's coordinates.
@@ -37,21 +52,24 @@ class Move:
         Steps are sequence of steps in the move.
         Start is an initial coordinates.
         """
+
         self.start = start
         self.steps = steps
 
     def add(self, step: tuple[int, int]) -> None:
         """
         Add step to the end of the list steps
+
         First int in the step is a row, second - is a column
         """
+
         self.steps.append(step)
 
     def __iter__(self) -> Move:
         """
-        Iterator goes through items
-        of the steps.
+        Iterator goes through items of the steps.
         """
+
         self.index = 0
         return self
 
@@ -67,6 +85,7 @@ class Move:
         ------
         StopIteration
         """
+
         if self.index < len(self.steps):
             result = self.steps[self.index]
             self.index += 1
@@ -75,4 +94,8 @@ class Move:
             raise StopIteration
 
     def __str__(self):
+        """
+        String representation of the move.
+        """
+
         return f'start: {self.start}\tsteps: {self.steps}'

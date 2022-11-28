@@ -1,5 +1,22 @@
+"""This module is for simulating the English checkers game.
+
+Class Game represents a simulation of the checkers game and allows
+get all possible moves for the current side (current turn), make
+and cancel moves (with previous game state recovery).
+
+This file can also be imported as module and contains the following
+classes:
+
+    * GameState - (Enum) describes all possible states of the game
+    * Color - represents player's color ( side in the game).
+    * Game - represent a simulation of the game.
+"""
+
+
 from enum import Enum
+
 from board import Board, Cell
+
 from move import Move, WrongMoveError
 
 
@@ -59,6 +76,7 @@ class Game:
         """
         Creating a board. Black goes first.
         """
+
         self.board: Board = Board(size)
         self.state: GameState = GameState.UNFINISHED
         self.turn: Color = Color.BLACK
@@ -73,6 +91,7 @@ class Game:
         """
         Cancels last move and recover previous state and board.
         """
+
         if self.last_changes:
             self.state = GameState.UNFINISHED
             changes: list[tuple[int, int, Cell]] = self.last_changes.pop()
@@ -97,7 +116,7 @@ class Game:
             column index
         cell: Cell
             type of cell is to set
-        undo : bool
+        undo : bool, optional
             if this parameter is true then
             do not write the change in the last_changes
 
@@ -105,6 +124,7 @@ class Game:
         -------
         None
         """
+
         prev_cell = self.board.get_cell(row, col)
         if not undo:
             self.last_changes[-1].append((row, col, prev_cell))
@@ -129,6 +149,7 @@ class Game:
         if an appropriate board condition has become
         else the state does not change.
         """
+
         if self.tie_counter >= self.tie_max:
             self.state = GameState.TIE
         elif not self.get_all_moves():
@@ -145,6 +166,7 @@ class Game:
         -------
         Color
         """
+
         if self.turn == Color.BLACK:
             return Color.WHITE
         return Color.BLACK
@@ -161,6 +183,7 @@ class Game:
         -------
         None
         """
+
         if len(move.steps) == 1:
             first_step_len = abs(max(move.steps[0][0] - move.start[0],
                                      move.steps[0][1] - move.start[1]))
@@ -189,6 +212,7 @@ class Game:
         -------
         None
         """
+
         row, col = move.steps[0]
         start_row, start_col = move.start
         cell = self.board.get_cell(start_row, start_col)
@@ -207,6 +231,7 @@ class Game:
         -------
         None
         """
+
         prev_row, prev_col = move.start
         prev_cell = self.board.get_cell(prev_row, prev_col)
         for step in move:
@@ -232,6 +257,7 @@ class Game:
         -------
         None
         """
+
         last_row, last_col = move.steps[-1]
         if self.turn == Color.BLACK and last_row == self.board.SIZE - 1:
             self._set_cell(last_row, last_col, Cell.BLACK_QUEEN)
@@ -246,6 +272,7 @@ class Game:
         -------
         bool
         """
+
         return (cell == Cell.BLACK or cell == Cell.BLACK_QUEEN) \
             and self.turn == Color.BLACK \
             or (cell == Cell.WHITE or cell == Cell.WHITE_QUEEN) \
@@ -261,6 +288,7 @@ class Game:
             list consist of the all possible moves for current turn,
             [] if there are no moves
         """
+
         moves = []
         for row in range(self.board.SIZE):
             for col in range(self.board.SIZE):
@@ -304,6 +332,7 @@ class Game:
             when cell type does not correspond to turn or
             row or col out of range(board.SIZE)
         """
+
         if not 0 <= row < self.board.SIZE \
                 or not 0 <= col < self.board.SIZE:
             raise WrongMoveError('row and col must be in the' +
@@ -342,6 +371,7 @@ class Game:
             when cell type does not correspond to turn or
             row or col out of range(board.SIZE)
         """
+
         if not 0 <= row < self.board.SIZE \
                 or not 0 <= col < self.board.SIZE:
             raise WrongMoveError('row and col must be in the' +
@@ -365,6 +395,7 @@ class Game:
         -------
         bool
         """
+
         if self.turn == Color.BLACK \
                 and cell in (Cell.WHITE, Cell.WHITE_QUEEN):
             return True
@@ -381,6 +412,9 @@ class Game:
         """
         Find all steps that beat opponent's checkers
 
+        Beating step is a jump through an opponent checker
+        to an empty cell.
+
         Parameters
         ----------
         row : int
@@ -395,6 +429,7 @@ class Game:
         list[list[tuple[int, int]]]
             list of lists of steps for each possible move
         """
+
         res = []
         for dir in dirs:
             tmp = []
@@ -445,6 +480,7 @@ class Game:
         list[list[tuple[int, int]]]
             list of lists of steps for each possible move
         """
+
         res = []
         for dir in dirs:
             r1, c1 = row + dir[0], col + dir[1]
@@ -474,6 +510,7 @@ class Game:
         list[list[tuple[int, int]]]
             list of lists of steps for each possible move
         """
+
         dirs = []
         cell = self.board.get_cell(row, col)
         if cell == Cell.BLACK:
@@ -514,6 +551,7 @@ class Game:
         list[list[tuple[int, int]]]
             list of lists of steps for each possible move
         """
+
         dirs = []
         cell = self.board.get_cell(row, col)
         if cell == Cell.BLACK:

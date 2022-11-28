@@ -1,3 +1,18 @@
+"""This module is for representing checkers board.
+
+Class Cell(Enum) describes all possible conditions of the board's cell.
+
+Class Board is to represent and initially fill the board and allow to
+read and set cell values.
+
+This file can also be imported as module and contains the following
+classes:
+
+    * Cell - Enum that represents cell values
+    * Board - represent checkers board
+"""
+
+
 from enum import Enum
 
 
@@ -39,6 +54,7 @@ class Board:
         Set the board arrangenment in accordance with
         rules of English chekers.
         """
+
         self._board = [[Cell.EMPTY] * Board.SIZE for i in range(Board.SIZE)]
         if size is not None:
             Board.SIZE = size
@@ -64,6 +80,7 @@ class Board:
         'b' is a black cell with the black cheker,
         'w' is a black cell with th white cheker.
         """
+
         for row in range(Board.SIZE // 2 - 1 + Board.SIZE % 2):
             for col in range(Board.SIZE):
                 if row % 2 != col % 2:
@@ -95,6 +112,7 @@ class Board:
         Cell
             cell type
         """
+
         if not 0 <= row < Board.SIZE or not 0 <= col < Board.SIZE:
             raise IndexError('row and col indices must be '
                              f'between 0 and {Board.SIZE - 1}.')
@@ -123,6 +141,7 @@ class Board:
         -------
         None
         """
+
         if not 0 <= row < Board.SIZE or not 0 <= col < Board.SIZE:
             raise IndexError('row and col indices must be '
                              f'between 0 and {Board.SIZE - 1}.')
@@ -130,6 +149,18 @@ class Board:
         self._board[row][col] = cell
 
     def __str__(self) -> str:
+        """
+        String representation of the board.
+
+        It is the table with size Board.SIZE x Board.SIZE.
+        Empty black cell is two spaces '  ',
+        empty white cell is two underlines '__',
+        black man checkers is 'b_',
+        white man checker is 'w_',
+        black queen checker is 'B_',
+        white queen checker is 'W_'
+        """
+
         cell_to_str = {
             Cell.EMPTY: ('__', '  '),
             Cell.BLACK: 'b ',
