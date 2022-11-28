@@ -29,7 +29,7 @@ class Game:
         current state of the game
     turn : Color
         Color of the chekers that have to go next
-    last_changes : list[tuple[int, int, Cell]]
+    last_changes : list[list[tuple[int, int, Cell]]]
         Last item is a tuple of row, column and initial value of the cell
         that was changed last. Previous item - last before last and so on.
     black_count : int
@@ -51,6 +51,8 @@ class Game:
         Get the list off all possible moves for current turn
     make_move(self, move: Move) -> None:
         Make a move and set board to the next turn
+    undo() -> None:
+        Cancels last move and recover previous state and board
     """
 
     def __init__(self, size: int | None = None):
@@ -60,14 +62,29 @@ class Game:
         self.board: Board = Board(size)
         self.state: GameState = GameState.UNFINISHED
         self.turn: Color = Color.BLACK
-        self.last_changes: list[tuple[int, int, Cell]] = []
+        self.last_changes: list[list[tuple[int, int, Cell]]] = []
         self.black_count: int = (size // 2 - 1 + size % 2) * (size // 2) + \
                                 (size // 2 - 1 + size % 2) // 2 * int(size % 2)
         self.white_count: int = self.black_count
         self.tie_counter: int = 0
         self.tie_max: int = size * size // 2
 
-    def _set_cell(self, row: int, col: int, cell: Cell) -> None:
+    def undo(self) -> None:
+        """
+        Cancels last move and recover previous state and board.
+        """
+        if self.last_changes:
+            self.state = GameState.UNFINISHED
+            changes: list[tuple[int, int, Cell]] = self.last_changes.pop()
+            while changes:
+                row, col, cell = changes.pop()
+                self._set_cell(row, col, cell, undo=True)
+
+    def _set_cell(self,
+                  row: int,
+                  col: int,
+                  cell: Cell,
+                  undo: bool = False) -> None:
         """
         Call the board.set_cell method, update last_changes,
         update black_count and white_count.
@@ -80,13 +97,19 @@ class Game:
             column index
         cell: Cell
             type of cell is to set
+        undo : bool
+            if this parameter is true then
+            do not write the change in the last_changes
 
         Returns
         -------
         None
         """
         prev_cell = self.board.get_cell(row, col)
-        self.last_changes.append((row, col, prev_cell))
+        if not undo:
+            self.last_changes[-1].append((row, col, prev_cell))
+        elif self.tie_counter > 0:
+            self.tie_counter -= 1
         self.board.set_cell(row, col, cell)
 
         if prev_cell in (Cell.BLACK, Cell.BLACK_QUEEN):
@@ -143,6 +166,7 @@ class Game:
                                      move.steps[0][1] - move.start[1]))
 
         self.tie_counter += 1
+        self.last_changes.append([])
         if len(move.steps) == 1 and first_step_len == 1:
             self._make_one_step_move(move)
         else:
@@ -520,7 +544,6 @@ if __name__ == '__main__':
     while game.state == GameState.UNFINISHED:
         print(game.board)
         print('b:', game.black_count, 'w:', game.white_count)
-        print('last_changes:', game.last_changes)
         print(game.turn)
 
         moves = game.get_all_moves()
@@ -540,3 +563,13 @@ if __name__ == '__main__':
     else:
         print(game.board)
         print(game.state)
+
+    while True:
+        print("Do you want to undo? If yes input '1':")
+        ans = input()
+        if ans != '1':
+            break
+        game.undo()
+        print(game.board)
+        print('b:', game.black_count, 'w:', game.white_count)
+        print(game.turn)
