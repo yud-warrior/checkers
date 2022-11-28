@@ -103,6 +103,8 @@ class Game:
         bc = (size // 2 - 1 + size % 2) * (size // 2)
         bc += (size // 2 - 1 + size % 2) // 2 * int(size % 2)
 
+        return bc
+
     def undo(self) -> None:
         """
         Cancels last move and recover previous state and board.
