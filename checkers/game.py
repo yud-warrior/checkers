@@ -25,10 +25,23 @@ class Game:
     ----------
     board : Board
         board object
-    game_state : type[GameState]
+    state : type[GameState]
         current state of the game
     turn : Color
         Color of the chekers that have to go next
+    last_changes : list[tuple[int, int, Cell]]
+        Last item is a tuple of row, column and initial value of the cell
+        that was changed last. Previous item - last before last and so on.
+    black_count : int
+        Number of black checkers on the board
+    white_count : int
+        Number of white checkers on the board
+    tie_counter : int
+        Number of last serial moves when
+        black_count and white_count were not changed
+    tie_max : int
+        Maximum value of the tie_counter
+        If tie_counter == tie_max then game finishes with the tie
 
     Methods
     -------
@@ -36,8 +49,6 @@ class Game:
         Get the opponent of the current Color
     get_all_moves() -> list[Move]:
         Get the list off all possible moves for current turn
-    get_moves(row: int, col: int) -> list[Move]:
-        Find all moves for checker with coordinates row and col
     make_move(self, move: Move) -> None:
         Make a move and set board to the next turn
     """
@@ -46,9 +57,62 @@ class Game:
         """
         Creating a board. Black goes first.
         """
-        self.board = Board(size)
-        self.game_state = GameState.UNFINISHED
-        self.turn = Color.BLACK
+        self.board: Board = Board(size)
+        self.state: GameState = GameState.UNFINISHED
+        self.turn: Color = Color.BLACK
+        self.last_changes: list[tuple[int, int, Cell]] = []
+        self.black_count: int = (size // 2 - 1 + size % 2) * (size // 2) + \
+                                (size // 2 - 1 + size % 2) // 2
+        self.white_count: int = self.black_count
+        self.tie_counter: int = 0
+        self.tie_max: int = size * size // 2
+
+    def _set_cell(self, row: int, col: int, cell: Cell) -> None:
+        """
+        Call the board.set_cell method, update last_changes,
+        update black_count and white_count.
+
+        Parameters
+        ----------
+        row: int
+            row index
+        col: int
+            column index
+        cell: Cell
+            type of cell is to set
+
+        Returns
+        -------
+        None
+        """
+        prev_cell = self.board.get_cell(row, col)
+        self.last_changes.append((row, col, prev_cell))
+        self.board.set_cell(row, col, cell)
+
+        if prev_cell in (Cell.BLACK, Cell.BLACK_QUEEN):
+            self.black_count -= 1
+        if prev_cell in (Cell.WHITE, Cell.WHITE_QUEEN):
+            self.white_count -= 1
+
+        if cell in (Cell.BLACK, Cell.BLACK_QUEEN):
+            self.black_count += 1
+        if cell in (Cell.WHITE, Cell.WHITE_QUEEN):
+            self.white_count += 1
+
+    def _update_state(self) -> None:
+        """
+        Change state from GameState.UNFINISHED to
+        GameState.TIE, GameState.BLACK_WON or GameState.WHITE_WON
+        if an appropriate board condition has become
+        else the state does not change.
+        """
+        if self.tie_counter >= self.tie_max:
+            self.state = GameState.TIE
+        elif not self.get_all_moves():
+            if self.turn == Color.BLACK:
+                self.state = GameState.WHITE_WON
+            else:
+                self.state = GameState.BLACK_WON
 
     def opponent(self) -> Color:
         """
@@ -78,13 +142,16 @@ class Game:
             first_step_len = abs(max(move.steps[0][0] - move.start[0],
                                      move.steps[0][1] - move.start[1]))
 
+        self.tie_counter += 1
         if len(move.steps) == 1 and first_step_len == 1:
             self._make_one_step_move(move)
         else:
             self._make_beat_move(move)
+            self.tie_counter = 0
         self._check_and_change_to_queen(move)
 
         self.turn = self.opponent()
+        self._update_state()
 
     def _make_one_step_move(self, move: Move) -> None:
         """
@@ -101,8 +168,8 @@ class Game:
         row, col = move.steps[0]
         start_row, start_col = move.start
         cell = self.board.get_cell(start_row, start_col)
-        self.board.set_cell(row, col, cell)
-        self.board.set_cell(start_row, start_col, Cell.EMPTY)
+        self._set_cell(row, col, cell)
+        self._set_cell(start_row, start_col, Cell.EMPTY)
 
     def _make_beat_move(self, move: Move) -> None:
         """
@@ -120,12 +187,12 @@ class Game:
         prev_cell = self.board.get_cell(prev_row, prev_col)
         for step in move:
             row, col = step
-            self.board.set_cell(
+            self._set_cell(
                     (prev_row + row) // 2,
                     (prev_col + col) // 2,
                     Cell.EMPTY)
-            self.board.set_cell(prev_row, prev_col, Cell.EMPTY)
-            self.board.set_cell(row, col, prev_cell)
+            self._set_cell(prev_row, prev_col, Cell.EMPTY)
+            self._set_cell(row, col, prev_cell)
             prev_row, prev_col = row, col
 
     def _check_and_change_to_queen(self, move: Move) -> None:
@@ -143,9 +210,9 @@ class Game:
         """
         last_row, last_col = move.steps[-1]
         if self.turn == Color.BLACK and last_row == self.board.SIZE - 1:
-            self.board.set_cell(last_row, last_col, Cell.BLACK_QUEEN)
+            self._set_cell(last_row, last_col, Cell.BLACK_QUEEN)
         elif self.turn == Color.WHITE and last_row == 0:
-            self.board.set_cell(last_row, last_col, Cell.WHITE_QUEEN)
+            self._set_cell(last_row, last_col, Cell.WHITE_QUEEN)
 
     def _is_turns_checker(self, cell: Cell) -> bool:
         """
@@ -174,15 +241,25 @@ class Game:
         for row in range(self.board.SIZE):
             for col in range(self.board.SIZE):
                 try:
-                    moves += self.get_moves(row, col)
+                    moves += self._get_beat_moves(row, col)
+                except WrongMoveError:
+                    continue
+
+        if moves:
+            return moves
+
+        for row in range(self.board.SIZE):
+            for col in range(self.board.SIZE):
+                try:
+                    moves += self._get_not_beat_moves(row, col)
                 except WrongMoveError:
                     continue
 
         return moves
 
-    def get_moves(self, row: int, col: int) -> list[Move]:
+    def _get_beat_moves(self, row: int, col: int) -> list[Move]:
         """
-        Find all moves for checker with coordinates row and col.
+        Find all beating moves for checker with coordinates row and col.
 
         Parameters
         ----------
@@ -213,7 +290,45 @@ class Game:
             raise WrongMoveError('cell type does not correspond turn\'s color')
 
         moves = []
-        for step_sequence in self._get_steps(row, col):
+        for step_sequence in self._get_beat_steps(row, col):
+            moves.append(Move((row, col), step_sequence))
+
+        return moves
+
+    def _get_not_beat_moves(self, row: int, col: int) -> list[Move]:
+        """
+        Find all not beating moves for checker with coordinates row and col.
+
+        Parameters
+        ----------
+        row : int
+            0-indexed row number in the board
+        col : int
+            0-indexed column number in the board
+
+        Returns
+        -------
+        list[Move]
+            list of possible moves for checker
+            [] if there is no moves
+
+        Raises
+        ------
+        WrongMoveError
+            when cell type does not correspond to turn or
+            row or col out of range(board.SIZE)
+        """
+        if not 0 <= row < self.board.SIZE \
+                or not 0 <= col < self.board.SIZE:
+            raise WrongMoveError('row and col must be in the' +
+                                 'range(self.board.SIZE)')
+
+        cell = self.board.get_cell(row, col)
+        if not self._is_turns_checker(cell):
+            raise WrongMoveError('cell type does not correspond turn\'s color')
+
+        moves = []
+        for step_sequence in self._get_not_beat_steps(row, col):
             moves.append(Move((row, col), step_sequence))
 
         return moves
@@ -318,9 +433,49 @@ class Game:
 
         return res
 
-    def _get_steps(self, row: int, col: int) -> list[Move]:
+    def _get_beat_steps(self, row: int, col: int) -> list[Move]:
         """
-        Find all possible steps for checker.
+        Find all possible beating steps for checker.
+        It is consider that there is a checker in the cell!
+
+        Parameters
+        ----------
+        row : int
+            0-indexed row number in the board
+        col : int
+            0-indexed column numer in the board
+
+        Returns
+        -------
+        list[list[tuple[int, int]]]
+            list of lists of steps for each possible move
+        """
+        dirs = []
+        cell = self.board.get_cell(row, col)
+        if cell == Cell.BLACK:
+            dirs = [
+                (1, -1),
+                (1, 1),
+            ]
+        elif cell == Cell.WHITE:
+            dirs = [
+                (-1, -1),
+                (-1, 1),
+            ]
+        elif cell in (Cell.BLACK_QUEEN, Cell.WHITE_QUEEN):
+            dirs = [
+                (-1, -1),
+                (-1, 1),
+                (1, -1),
+                (1, 1),
+            ]
+        steps = self._dfs_find_beat_steps(row, col, dirs)
+
+        return steps
+
+    def _get_not_beat_steps(self, row: int, col: int) -> list[Move]:
+        """
+        Find all possible not beating steps for checker.
         It is consider that there is a checker in the cell!
 
         Parameters
@@ -355,26 +510,33 @@ class Game:
                 (1, 1),
             ]
         steps = self._find_not_beat_steps(row, col, dirs)
-        steps += self._dfs_find_beat_steps(row, col, dirs)
 
         return steps
 
 
 if __name__ == '__main__':
-    game = Game()
+    game = Game(3)
     moves = game.get_all_moves()
-    while moves:
+    while game.state == GameState.UNFINISHED:
         print(game.board)
+        print('b:', game.black_count, 'w:', game.white_count)
+        print('last_changes:', game.last_changes)
         print(game.turn)
-        for move in moves:
-            print(move)
-        print('Input start_row and start_col for move:')
-        start_row, start_col = tuple(map(int, input().strip().split()))
-        print('Input row and col for the first step of the move:')
-        row, col = tuple(map(int, input().strip().split()))
-        for move in moves:
-            if move.start == (start_row, start_col):
-                if move.steps[0] == (row, col):
-                    game.make_move(move)
-                    moves = game.get_all_moves()
-                    break
+
+        moves = game.get_all_moves()
+        for i, move in enumerate(moves):
+            print(i + 1, ':', move)
+        print('Input number of the move for move:')
+        try:
+            move_number = int(input().strip())
+        except ValueError:
+            print('Wrong input. Number of the move must be int')
+        try:
+            move = moves[move_number - 1]
+        except IndexError:
+            print('Wrong move')
+            continue
+        game.make_move(move)
+    else:
+        print(game.board)
+        print(game.state)

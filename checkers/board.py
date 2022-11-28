@@ -40,13 +40,13 @@ class Board:
         rules of English chekers.
         """
         self._board = [[Cell.EMPTY] * Board.SIZE for i in range(Board.SIZE)]
-        self.fill_initial()
         if size is not None:
             Board.SIZE = size
+        self.fill_initial()
 
     def fill_initial(self):
         """
-        Fill the board by chekers:
+        Fill the board 8x8 by chekers:
 
         |----------------|
         |__b __b __b __b |
@@ -64,7 +64,7 @@ class Board:
         'b' is a black cell with the black cheker,
         'w' is a black cell with th white cheker.
         """
-        for row in range(Board.SIZE // 2 - 1):
+        for row in range(Board.SIZE // 2 - 1 + Board.SIZE % 2):
             for col in range(Board.SIZE):
                 if row % 2 != col % 2:
                     self._board[row][col] = Cell.BLACK
@@ -107,12 +107,12 @@ class Board:
 
         Parameters
         ----------
-        cell: Cell
-            type of cell is to set
         row: int
             row index
         col: int
             column index
+        cell: Cell
+            type of cell is to set
 
         Raises
         ------
