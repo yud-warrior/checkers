@@ -309,6 +309,38 @@ class Game:
 
         return moves
 
+    def is_correct_cell_for_move(self, row: int, col: int) -> None:
+        """
+        If row or col are incorrect indices or checker in the cell
+        is not current turn's checker raises WrongMoveError.
+
+        Parameters
+        ----------
+        row : int
+            0-indexed row number in the board
+        col : int
+            0-indexed column number in the board
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        WrongMoveError
+            when cell type does not correspond to turn or
+            row or col out of range(board.SIZE)
+        """
+
+        if not 0 <= row < self.board.SIZE \
+                or not 0 <= col < self.board.SIZE:
+            raise WrongMoveError('row and col must be in the' +
+                                 'range(self.board.SIZE)')
+
+        cell = self.board.get_cell(row, col)
+        if not self._is_turns_checker(cell):
+            raise WrongMoveError('cell type does not correspond turn\'s color')
+
     def _get_beat_moves(self, row: int, col: int) -> list[Move]:
         """
         Find all beating moves for checker with coordinates row and col.
@@ -333,14 +365,10 @@ class Game:
             row or col out of range(board.SIZE)
         """
 
-        if not 0 <= row < self.board.SIZE \
-                or not 0 <= col < self.board.SIZE:
-            raise WrongMoveError('row and col must be in the' +
-                                 'range(self.board.SIZE)')
-
-        cell = self.board.get_cell(row, col)
-        if not self._is_turns_checker(cell):
-            raise WrongMoveError('cell type does not correspond turn\'s color')
+        try:
+            self.is_correct_cell_for_move(row, col)
+        except WrongMoveError as e:
+            raise e
 
         moves = []
         for step_sequence in self._get_beat_steps(row, col):
@@ -372,14 +400,10 @@ class Game:
             row or col out of range(board.SIZE)
         """
 
-        if not 0 <= row < self.board.SIZE \
-                or not 0 <= col < self.board.SIZE:
-            raise WrongMoveError('row and col must be in the' +
-                                 'range(self.board.SIZE)')
-
-        cell = self.board.get_cell(row, col)
-        if not self._is_turns_checker(cell):
-            raise WrongMoveError('cell type does not correspond turn\'s color')
+        try:
+            self.is_correct_cell_for_move(row, col)
+        except WrongMoveError as e:
+            raise e
 
         moves = []
         for step_sequence in self._get_not_beat_steps(row, col):
