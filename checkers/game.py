@@ -62,7 +62,7 @@ class Game:
         self.turn: Color = Color.BLACK
         self.last_changes: list[tuple[int, int, Cell]] = []
         self.black_count: int = (size // 2 - 1 + size % 2) * (size // 2) + \
-                                (size // 2 - 1 + size % 2) // 2
+                                (size // 2 - 1 + size % 2) // 2 * int(size % 2)
         self.white_count: int = self.black_count
         self.tie_counter: int = 0
         self.tie_max: int = size * size // 2
@@ -515,7 +515,7 @@ class Game:
 
 
 if __name__ == '__main__':
-    game = Game(3)
+    game = Game(5)
     moves = game.get_all_moves()
     while game.state == GameState.UNFINISHED:
         print(game.board)
