@@ -2,7 +2,7 @@
 
 #sys.path.append('../')
 
-from src.checkers.board import Board, Cell
+from checkers.board import Board, Cell
 
 import unittest
 
