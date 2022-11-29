@@ -99,7 +99,7 @@ class Game:
             number of black checkers at the start of the game
         """
 
-        size = self.board.SIZE
+        size = self.board.size
         bc = (size // 2 - 1 + size % 2) * (size // 2)
         bc += (size // 2 - 1 + size % 2) // 2 * int(size % 2)
 
@@ -108,6 +108,10 @@ class Game:
     def undo(self) -> None:
         """
         Cancels last move and recover previous state and board.
+
+        Returns
+        -------
+        None
         """
 
         if self.last_changes:
@@ -115,13 +119,9 @@ class Game:
             changes: list[tuple[int, int, Cell]] = self.last_changes.pop()
             while changes:
                 row, col, cell = changes.pop()
-                self._set_cell(row, col, cell, undo=True)
+                self._set_cell_undo(row, col, cell)
 
-    def _set_cell(self,
-                  row: int,
-                  col: int,
-                  cell: Cell,
-                  undo: bool = False) -> None:
+    def _set_cell(self, row: int, col: int, cell: Cell) -> None:
         """
         Call the board.set_cell method, update last_changes,
         update black_count and white_count.
@@ -134,9 +134,6 @@ class Game:
             column index
         cell: Cell
             type of cell is to set
-        undo : bool, optional
-            if this parameter is true then
-            do not write the change in the last_changes
 
         Returns
         -------
@@ -144,11 +141,52 @@ class Game:
         """
 
         prev_cell = self.board.get_cell(row, col)
-        if not undo:
-            self.last_changes[-1].append((row, col, prev_cell))
-        elif self.tie_counter > 0:
+        self.last_changes[-1].append((row, col, prev_cell))
+        self.board.set_cell(row, col, cell)
+
+        self._update_checkers_counters(prev_cell, cell)
+
+    def _set_cell_undo(self, row: int, col: int, cell: Cell) -> None:
+        """
+        Call the board.set_cell method, update tie_counter,
+        update black_count and white_count.
+
+        Parameters
+        ----------
+        row: int
+            row index
+        col: int
+            column index
+        cell: Cell
+            type of cell is to set
+
+        Returns
+        -------
+        None
+        """
+
+        prev_cell = self.board.get_cell(row, col)
+        if self.tie_counter > 0:
             self.tie_counter -= 1
         self.board.set_cell(row, col, cell)
+
+        self._update_checkers_counters(prev_cell, cell)
+
+    def _update_checkers_counters(self, prev_cell: Cell, cell: Cell) -> None:
+        """
+        Update black_count and white_count
+
+        Parameters
+        ----------
+        prev_cell : Cell
+            Type of the cell before change
+        cell : Cell
+            Type of the cell after change
+
+        Returns
+        -------
+        None
+        """
 
         if prev_cell in (Cell.BLACK, Cell.BLACK_QUEEN):
             self.black_count -= 1
@@ -277,7 +315,7 @@ class Game:
         """
 
         last_row, last_col = move.steps[-1]
-        if self.turn == Color.BLACK and last_row == self.board.SIZE - 1:
+        if self.turn == Color.BLACK and last_row == self.board.size - 1:
             self._set_cell(last_row, last_col, Cell.BLACK_QUEEN)
         elif self.turn == Color.WHITE and last_row == 0:
             self._set_cell(last_row, last_col, Cell.WHITE_QUEEN)
@@ -308,8 +346,8 @@ class Game:
         """
 
         moves = []
-        for row in range(self.board.SIZE):
-            for col in range(self.board.SIZE):
+        for row in range(self.board.size):
+            for col in range(self.board.size):
                 try:
                     moves += self._get_beat_moves(row, col)
                 except WrongMoveError:
@@ -318,8 +356,8 @@ class Game:
         if moves:
             return moves
 
-        for row in range(self.board.SIZE):
-            for col in range(self.board.SIZE):
+        for row in range(self.board.size):
+            for col in range(self.board.size):
                 try:
                     moves += self._get_not_beat_moves(row, col)
                 except WrongMoveError:
@@ -347,13 +385,13 @@ class Game:
         ------
         WrongMoveError
             when cell type does not correspond to turn or
-            row or col out of range(board.SIZE)
+            row or col out of range(board.size)
         """
 
-        if not 0 <= row < self.board.SIZE \
-                or not 0 <= col < self.board.SIZE:
+        if not 0 <= row < self.board.size \
+                or not 0 <= col < self.board.size:
             raise WrongMoveError('row and col must be in the' +
-                                 'range(self.board.SIZE)')
+                                 'range(self.board.size)')
 
         cell = self.board.get_cell(row, col)
         if not self._is_turns_checker(cell):
@@ -380,7 +418,7 @@ class Game:
         ------
         WrongMoveError
             when cell type does not correspond to turn or
-            row or col out of range(board.SIZE)
+            row or col out of range(board.size)
         """
 
         try:
@@ -415,7 +453,7 @@ class Game:
         ------
         WrongMoveError
             when cell type does not correspond to turn or
-            row or col out of range(board.SIZE)
+            row or col out of range(board.size)
         """
 
         try:
@@ -429,14 +467,26 @@ class Game:
 
         return moves
 
-    def _cell_with_opponent(self, cell: Cell) -> bool:
+    def _cell_with_opponent(self, row: int, col: int) -> bool:
         """
         Check if the cell with opponent checker.
+
+        Parameters
+        ----------
+        row : int
+            0-indexed row number in the board
+        col : int
+            0-indexed column number in the board
 
         Returns
         -------
         bool
         """
+
+        try:
+            cell = self.board.get_cell(row, col)
+        except IndexError:
+            return False
 
         if self.turn == Color.BLACK \
                 and cell in (Cell.WHITE, Cell.WHITE_QUEEN):
@@ -445,6 +495,29 @@ class Game:
                 and cell in (Cell.BLACK, Cell.BLACK_QUEEN):
             return True
         return False
+
+    def _empty_cell(self, row: int, col: int) -> bool:
+        """
+        Check if the cell is empty.
+
+        Parameters
+        ----------
+        row : int
+            0-indexed row number in the board
+        col : int
+            0-indexed column number in the board
+
+        Returns
+        -------
+        bool
+        """
+
+        try:
+            cell = self.board.get_cell(row, col)
+        except IndexError:
+            return False
+
+        return cell == Cell.EMPTY
 
     def _dfs_find_beat_steps(
                 self,
@@ -472,33 +545,24 @@ class Game:
             list of lists of steps for each possible move
         """
 
-        res = []
-        for dir in dirs:
-            tmp = []
-            r1, c1 = row + dir[0], col + dir[1]
-            try:
-                cell = self.board.get_cell(r1, c1)
-            except IndexError:
-                continue
-            if self._cell_with_opponent(cell):
-                r2, c2 = r1 + dir[0], c1 + dir[1]
-                try:
-                    next_cell = self.board.get_cell(r2, c2)
-                except IndexError:
-                    continue
-                if next_cell == Cell.EMPTY:
+        steps = []
+        for rdir, cdir in dirs:
+            r, c = row + rdir, col + cdir
+            if self._cell_with_opponent(r, c):
+                r, c = r + rdir, c + cdir
+                if self._empty_cell(r, c):
                     new_dirs = []
                     for d in dirs:
-                        if not (d[0] == -dir[0] and d[1] == -dir[1]):
+                        if not (d[0] == -rdir and d[1] == -cdir):
                             new_dirs.append(d)
-                    res1 = self._dfs_find_beat_steps(r2, c2, new_dirs)
-                    tmp1 = [(r2, c2)]
-                    if not res1:
-                        tmp += [tmp1]
-                    for e in res1:
-                        tmp.append(tmp1 + e)
-                    res += tmp
-        return res
+                    next_steps = self._dfs_find_beat_steps(r, c, new_dirs)
+                    tmp = [(r, c)]
+                    if not next_steps:
+                        steps += [tmp]
+                    for step in next_steps:
+                        steps.append(tmp + step)
+
+        return steps
 
     def _find_not_beat_steps(
                 self,
@@ -619,7 +683,7 @@ class Game:
 
 
 if __name__ == '__main__':
-    game = Game(5)
+    game = Game(6)
     moves = game.get_all_moves()
     while game.state == GameState.UNFINISHED:
         print(game.board)

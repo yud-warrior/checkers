@@ -55,14 +55,15 @@ class Board:
         rules of English chekers.
         """
 
-        self._board = [[Cell.EMPTY] * Board.SIZE for i in range(Board.SIZE)]
+        self.size = Board.SIZE
         if size is not None:
-            Board.SIZE = size
+            self.size = size
+        self._board = [[Cell.EMPTY] * Board.SIZE for i in range(Board.SIZE)]
         self.fill_initial()
 
     def fill_initial(self):
         """
-        Fill the board 8x8 by chekers:
+        Fill the board 8x8 (example) by chekers:
 
         |----------------|
         |__b __b __b __b |
@@ -81,13 +82,13 @@ class Board:
         'w' is a black cell with th white cheker.
         """
 
-        for row in range(Board.SIZE // 2 - 1 + Board.SIZE % 2):
-            for col in range(Board.SIZE):
+        for row in range(self.size // 2 - 1 + self.size % 2):
+            for col in range(self.size):
                 if row % 2 != col % 2:
                     self._board[row][col] = Cell.BLACK
 
-        for row in range(Board.SIZE // 2 + 1, Board.SIZE):
-            for col in range(Board.SIZE):
+        for row in range(self.size // 2 + 1, self.size):
+            for col in range(self.size):
                 if row % 2 != col % 2:
                     self._board[row][col] = Cell.WHITE
 
@@ -105,7 +106,7 @@ class Board:
         Raises
         ------
         IndexError
-            when row and col are not between 0 and Board.Size - 1
+            when row and col are not between 0 and size - 1
 
         Returns
         -------
@@ -113,7 +114,7 @@ class Board:
             cell type
         """
 
-        if not 0 <= row < Board.SIZE or not 0 <= col < Board.SIZE:
+        if not 0 <= row < self.size or not 0 <= col < self.size:
             raise IndexError('row and col indices must be '
                              f'between 0 and {Board.SIZE - 1}.')
 
@@ -142,9 +143,9 @@ class Board:
         None
         """
 
-        if not 0 <= row < Board.SIZE or not 0 <= col < Board.SIZE:
+        if not 0 <= row < self.size or not 0 <= col < self.size:
             raise IndexError('row and col indices must be '
-                             f'between 0 and {Board.SIZE - 1}.')
+                             f'between 0 and {self.size - 1}.')
 
         self._board[row][col] = cell
 
@@ -152,13 +153,13 @@ class Board:
         """
         String representation of the board.
 
-        It is the table with size Board.SIZE x Board.SIZE.
+        It is the table size x size.
         Empty black cell is two spaces '  ',
         empty white cell is two underlines '__',
-        black man checkers is 'b_',
-        white man checker is 'w_',
-        black queen checker is 'B_',
-        white queen checker is 'W_'
+        black man checkers is 'b ',
+        white man checker is 'w ',
+        black queen checker is 'B ',
+        white queen checker is 'W '
         """
 
         cell_to_str = {
@@ -169,17 +170,17 @@ class Board:
             Cell.WHITE_QUEEN: 'W ',
         }
 
-        s = '|' + '--' * Board.SIZE + '|\n'
-        for row in range(Board.SIZE):
+        s = '|' + '--' * self.size + '|\n'
+        for row in range(self.size):
             s += '|'
-            for col in range(Board.SIZE):
+            for col in range(self.size):
                 cell = self.get_cell(row, col)
                 if cell == Cell.EMPTY:
                     s += cell_to_str[cell][(row + col) % 2]
                 else:
                     s += cell_to_str[cell]
             s += '|\n'
-        s += '|' + '--' * Board.SIZE + '|\n'
+        s += '|' + '--' * self.size + '|\n'
 
         return s
 
