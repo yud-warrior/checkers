@@ -1,8 +1,8 @@
-import sys
+#import sys
 
-sys.path.append('../')
+#sys.path.append('../')
 
-from checkers.board import Board, Cell
+from src.checkers.board import Board, Cell
 
 import unittest
 
