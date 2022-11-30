@@ -365,7 +365,7 @@ class Game:
 
         return moves
 
-    def is_correct_cell_for_move(self, row: int, col: int) -> None:
+    def _is_correct_cell_for_move(self, row: int, col: int) -> None:
         """
         If row or col are incorrect indices or checker in the cell
         is not current turn's checker raises WrongMoveError.
@@ -422,7 +422,7 @@ class Game:
         """
 
         try:
-            self.is_correct_cell_for_move(row, col)
+            self._is_correct_cell_for_move(row, col)
         except WrongMoveError as e:
             raise e
 
@@ -457,7 +457,7 @@ class Game:
         """
 
         try:
-            self.is_correct_cell_for_move(row, col)
+            self._is_correct_cell_for_move(row, col)
         except WrongMoveError as e:
             raise e
 
