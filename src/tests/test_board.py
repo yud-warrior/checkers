@@ -9,7 +9,6 @@ class BoardTestCase(unittest.TestCase):
         self.board6x6 = Board(6)
 
     def tearDown(self) -> None:
-        pass
         return super().tearDown()
 
     def test_get_cell(self) -> None:
