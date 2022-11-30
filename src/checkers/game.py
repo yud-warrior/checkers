@@ -16,7 +16,6 @@ classes:
 from enum import Enum
 
 from board import Board, Cell
-
 from move import Move, WrongMoveError
 
 
