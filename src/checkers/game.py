@@ -599,10 +599,14 @@ class Game:
 
         return res
 
-    def _get_beat_steps(self, row: int, col: int) -> list[Move]:
+    def _get_dirs(self, row: int, col: int) -> list[tuple[int, int]]:
         """
-        Find all possible beating steps for checker.
+        Find all possible directions for move for the checker.
         It is consider that there is a checker in the cell!
+
+        Each directions represents diagonal step and is
+        pair of two ones with some signs. For example:
+        (1, -1) or (-1, -1).
 
         Parameters
         ----------
@@ -613,8 +617,8 @@ class Game:
 
         Returns
         -------
-        list[list[tuple[int, int]]]
-            list of lists of steps for each possible move
+        list[tuple[int, int]]
+            list of tuples of directions
         """
 
         dirs = []
@@ -636,6 +640,28 @@ class Game:
                 (1, -1),
                 (1, 1),
             ]
+
+        return dirs
+
+    def _get_beat_steps(self, row: int, col: int) -> list[Move]:
+        """
+        Find all possible beating steps for checker.
+        It is consider that there is a checker in the cell!
+
+        Parameters
+        ----------
+        row : int
+            0-indexed row number in the board
+        col : int
+            0-indexed column numer in the board
+
+        Returns
+        -------
+        list[list[tuple[int, int]]]
+            list of lists of steps for each possible move
+        """
+
+        dirs = self._get_dirs(row, col)
         steps = self._dfs_find_beat_steps(row, col, dirs)
 
         return steps
@@ -658,25 +684,7 @@ class Game:
             list of lists of steps for each possible move
         """
 
-        dirs = []
-        cell = self.board.get_cell(row, col)
-        if cell == Cell.BLACK:
-            dirs = [
-                (1, -1),
-                (1, 1),
-            ]
-        elif cell == Cell.WHITE:
-            dirs = [
-                (-1, -1),
-                (-1, 1),
-            ]
-        elif cell in (Cell.BLACK_QUEEN, Cell.WHITE_QUEEN):
-            dirs = [
-                (-1, -1),
-                (-1, 1),
-                (1, -1),
-                (1, 1),
-            ]
+        dirs = self._get_dirs(row, col)
         steps = self._find_not_beat_steps(row, col, dirs)
 
         return steps
