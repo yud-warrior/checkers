@@ -1,10 +1,6 @@
-#import sys
-
-#sys.path.append('../')
+import unittest
 
 from checkers.board import Board, Cell
-
-import unittest
 
 
 class BoardTestCase(unittest.TestCase):
