@@ -15,8 +15,8 @@ classes:
 
 from enum import Enum
 
-from board import Board, Cell
-from move import Move, WrongMoveError
+from checkers.board import Board, Cell
+from checkers.move import Move, WrongMoveError
 
 
 class GameState(Enum):
