@@ -292,9 +292,9 @@ class Game:
         for step in move:
             row, col = step
             self._set_cell(
-                    (prev_row + row) // 2,
-                    (prev_col + col) // 2,
-                    Cell.EMPTY)
+                (prev_row + row) // 2,
+                (prev_col + col) // 2,
+                Cell.EMPTY)
             self._set_cell(prev_row, prev_col, Cell.EMPTY)
             self._set_cell(row, col, prev_cell)
             prev_row, prev_col = row, col
@@ -389,7 +389,7 @@ class Game:
 
         if not 0 <= row < self.board.size \
                 or not 0 <= col < self.board.size:
-            raise WrongMoveError('row and col must be in the' +
+            raise WrongMoveError('row and col must be in the'
                                  'range(self.board.size)')
 
         cell = self.board.get_cell(row, col)
@@ -519,12 +519,12 @@ class Game:
         return cell == Cell.EMPTY
 
     def _dfs_find_beat_steps(
-                self,
-                row: int,
-                col: int,
-                dirs: list[tuple[int, int]],
-                bet: set[tuple[int, int]] | None = set()
-            ) -> list[list[tuple[int, int]]]:
+            self,
+            row: int,
+            col: int,
+            dirs: list[tuple[int, int]],
+            bet: set[tuple[int, int]] | None = set()
+    ) -> list[list[tuple[int, int]]]:
         """
         Find all steps that beat opponent's checkers
 
@@ -572,10 +572,11 @@ class Game:
         return steps
 
     def _find_not_beat_steps(
-                self,
-                row: int,
-                col: int,
-                dirs: list[tuple[int, int]]) -> list[list[tuple[int, int]]]:
+            self,
+            row: int,
+            col: int,
+            dirs: list[tuple[int, int]]
+    ) -> list[list[tuple[int, int]]]:
         """
         Find all one step and not beating steps
 
