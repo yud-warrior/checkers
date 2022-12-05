@@ -5,7 +5,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 setup(name='english_checkers',
-      version='0.1',
+      version='0.0.1',
       description='The English chekers game simulation package',
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -24,10 +24,5 @@ setup(name='english_checkers',
       install_requires=[
           'markdown',
       ],
-      test_suite='nose.collector',
-      tests_require=['nose', 'nose-cover3'],
-      entry_points={
-          'console_scripts': ['funniest-joke=funniest.command_line:main'],
-      },
       include_package_data=True,
       zip_safe=False)
