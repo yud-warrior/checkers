@@ -142,10 +142,10 @@ test = ["coverage"]
 
 # This is configuration specific to the `setuptools` build backend.
 # If you are using a different build backend, you will need to change this.
-[tool.setuptools]
+#[tool.setuptools]
 # If there are data files included in your packages that need to be
 # installed, specify them here.
-package-data = {"english_checkers" = ["*.dat"]}
+#package-data = {"english_checkers" = ["*.dat"]}
 
 [build-system]
 # These are the assumed default build requirements from pip:
