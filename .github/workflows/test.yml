@@ -25,5 +25,5 @@ jobs:
       run: cd src
     - name: Test
       run: python -m unittest discover -v -t .. -s tests
-    - name: Co to project root directory
+    - name: Go to project root directory
       run: cd ..
