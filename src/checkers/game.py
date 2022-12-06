@@ -699,7 +699,7 @@ class Game:
 
 
 if __name__ == '__main__':
-    game = Game(6)
+    game = Game(4)
     moves = game.get_all_moves()
     while game.state == GameState.UNFINISHED:
         print(game.board)

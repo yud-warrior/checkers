@@ -1,6 +1,6 @@
 import unittest
 
-from checkers.board import Board, Cell
+from src.checkers.board import Board, Cell
 
 
 class BoardTestCase(unittest.TestCase):

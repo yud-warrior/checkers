@@ -1,6 +1,6 @@
 import unittest
 
-from checkers.move import Move
+from src.checkers.move import Move
 
 
 class MoveTestCase(unittest.TestCase):

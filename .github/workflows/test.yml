@@ -21,11 +21,5 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Install test dependencies
       run: python -m pip install -U tox
-    - name: Go to src directory
-      run: cd src
-    - name: ls
-      run: ls -a
     - name: Test
-      run: python -m unittest discover -v -t .. -s tests
-    - name: Go to project root directory
-      run: cd ..
+      run: python -m tox -e py
