@@ -49,14 +49,14 @@ class Board:
 
     SIZE = 8
 
-    def __init__(self, size: int | None = None):
+    def __init__(self, size: int = 0):
         """
         Set the board arrangenment in accordance with
         rules of English chekers.
         """
 
         self.size = Board.SIZE
-        if size is not None:
+        if size != 0:
             self.size = size
         self._board = [[Cell.EMPTY] * Board.SIZE for i in range(Board.SIZE)]
         self.fill_initial()

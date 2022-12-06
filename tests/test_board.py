@@ -7,6 +7,7 @@ class BoardTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.board3x3 = Board(3)
         self.board6x6 = Board(6)
+        self.board_default = Board()
 
     def tearDown(self) -> None:
         return super().tearDown()

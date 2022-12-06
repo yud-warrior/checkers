@@ -71,7 +71,7 @@ class Game:
         Cancels last move and recover previous state and board
     """
 
-    def __init__(self, size: int | None = None):
+    def __init__(self, size: int = 0):
         """
         Creating a board. Black goes first.
         """
