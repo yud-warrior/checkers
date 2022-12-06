@@ -1,7 +1,7 @@
 import unittest
 
-from src.checkers.game import Game, GameState, Color
-from src.checkers.board import Cell
+from checkers.game import Game, GameState, Color
+from checkers.board import Cell
 
 
 class GameTestCase(unittest.TestCase):
