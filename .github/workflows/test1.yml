@@ -16,7 +16,7 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python }}
-    - name: Install test dependencies
+    - name: Install test1 dependencies
       run: python -m pip install -U tox
     - name: Test1
       run: python -m tox -e py
