@@ -1,1 +1,2 @@
 include README.rst README.md LICENSE.txt pytest.ini
+recursive-include docs *.md
