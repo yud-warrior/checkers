@@ -31,7 +31,7 @@ Classes
         takes last opponent's move if it was presented
         and returns randomly chosen move
     
-    Creates separate Game object and writes color of AI playr
+    Creates separate Game object and writes color of AI player
 
     ### Methods
 
