@@ -543,7 +543,7 @@ class Game:
         dirs : list[tuple[int, int]]
             list of possible directions to a next step of the move
             (turkish hit rule)
-        bet : set[tuple[int, int]]
+        bet : set[tuple[int, int]], optional
             set of cells with bet checkers
 
         Returns
