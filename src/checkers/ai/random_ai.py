@@ -36,7 +36,7 @@ class RandomAI:
     """
     def __init__(self, size: int, color: Color):
         """
-        Creates separate Game object and writes color of AI playr
+        Creates separate Game object and writes color of AI player
         """
         self._game: Game = Game(size)
         self.color: Color = color

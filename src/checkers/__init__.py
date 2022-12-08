@@ -5,4 +5,4 @@ and choose move (this object is instance of the Move class
 that pepresented in the move module) from list of the all
 possible moves.
 """
-__version__ = "0.0.1"
+__version__ = "0.0.2"
