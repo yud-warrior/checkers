@@ -52,9 +52,3 @@ Let's create a game with RandomAI:
     if __name__ == '__main__':
         main()
 
-Testing
--------
-To run tests run the command in directory root folder:
-
-.. highlight:: shell-session
-    $ pytest -v tests
