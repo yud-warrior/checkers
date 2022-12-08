@@ -523,7 +523,8 @@ class Game:
             row: int,
             col: int,
             dirs: list[tuple[int, int]],
-            bet: set[tuple[int, int]] | None = set()
+            new_dirs: list[tuple[int, int]],
+            bet: set[tuple[int, int]] | None = set(),
     ) -> list[list[tuple[int, int]]]:
         """
         Find all steps that beat opponent's checkers
@@ -539,6 +540,9 @@ class Game:
             0-indexed column numer in the board
         dirs : list[tuple[int, int]]
             list of possible directions to a move
+        dirs : list[tuple[int, int]]
+            list of possible directions to a next step of the move
+            (turkish hit rule)
         bet : set[tuple[int, int]]
             set of cells with bet checkers
 
@@ -549,7 +553,9 @@ class Game:
         """
 
         steps = []
-        for rdir, cdir in dirs:
+        cached_cell = self.board.get_cell(row, col)
+        self.board.set_cell(row, col, Cell.EMPTY)
+        for rdir, cdir in new_dirs:
             r, c = row + rdir, col + cdir
             if self._cell_with_opponent(r, c):
                 if (r, c) in bet:
@@ -557,17 +563,21 @@ class Game:
                 bet.add((r, c))
                 r, c = r + rdir, c + cdir
                 if self._empty_cell(r, c):
-                    new_dirs = []
+                    next_new_dirs = []
+                    next_steps = []
                     for d in dirs:
                         if not (d[0] == -rdir and d[1] == -cdir):
-                            new_dirs.append(d)
-                    next_steps = self._dfs_find_beat_steps(r, c, new_dirs, bet)
+                            next_new_dirs.append(d)
+                    next_steps = self._dfs_find_beat_steps(
+                        r, c, dirs, next_new_dirs, bet
+                    )
                     tmp = [(r, c)]
                     if not next_steps:
                         steps += [tmp]
                     for step in next_steps:
                         steps.append(tmp + step)
                 bet.remove((r - rdir, c - cdir))
+        self.board.set_cell(row, col, cached_cell)
 
         return steps
 
@@ -670,7 +680,7 @@ class Game:
         """
 
         dirs = self._get_dirs(row, col)
-        steps = self._dfs_find_beat_steps(row, col, dirs)
+        steps = self._dfs_find_beat_steps(row, col, dirs, dirs)
 
         return steps
 
