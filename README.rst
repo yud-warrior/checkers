@@ -11,6 +11,7 @@ Let's create a game with RandomAI:
 
 .. code-block:: python
     :caption: console_checkers_sim.py
+    
     from checkers.game import Game, GameState, Color
     from checkers.move import Move
     from checkers.ai.random_ai import RandomAI
@@ -48,7 +49,7 @@ Let's create a game with RandomAI:
             print(game.board)
             print(game.state)
 
-
+    
     if __name__ == '__main__':
         main()
 
