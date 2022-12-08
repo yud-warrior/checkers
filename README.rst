@@ -56,5 +56,6 @@ Testing
 -------
 To run tests run the command in directory root folder:
 
-.. code-block:: bash
-    $ pytest -v tests
+.. highlight:: bash
+    ::
+    pytest -v tests
