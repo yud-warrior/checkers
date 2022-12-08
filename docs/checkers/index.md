@@ -9,6 +9,7 @@ possible moves.
 
 Sub-modules
 -----------
+* checkers.ai
 * checkers.board
 * checkers.game
 * checkers.move
