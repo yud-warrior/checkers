@@ -10,7 +10,6 @@ Basic usage
 Let's create a game with RandomAI:
 
 .. code-block:: python
-    :caption: console_checkers_sim.py
     
     from checkers.game import Game, GameState, Color
     from checkers.move import Move
