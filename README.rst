@@ -56,5 +56,5 @@ Testing
 -------
 To run tests run the command in directory root folder:
 
-.. highlight:: none
+.. highlight:: shell-session
     $ pytest -v tests
