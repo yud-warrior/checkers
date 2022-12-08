@@ -15,7 +15,7 @@ Let's create a game with RandomAI:
     from checkers.game import Game, GameState, Color
     from checkers.move import Move
     from checkers.ai.random_ai import RandomAI
-
+    
     def main():
         size = 8
         game = Game(size)
@@ -27,7 +27,7 @@ Let's create a game with RandomAI:
             print(game.board)
             print('b:', game.black_count, 'w:', game.white_count)
             print(game.turn)
-
+    
             if game.turn == ai_color:
                 move = ai.make_move(move)
             else:
@@ -49,7 +49,7 @@ Let's create a game with RandomAI:
             print(game.board)
             print(game.state)
     
-
+    
     if __name__ == '__main__':
         main()
 
