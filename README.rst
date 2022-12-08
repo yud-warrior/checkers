@@ -49,8 +49,8 @@ Let's create a game with RandomAI:
             print(game.state)
 
 
-if __name__ == '__main__':
-    main()
+    if __name__ == '__main__':
+        main()
 
 Testing
 -------
