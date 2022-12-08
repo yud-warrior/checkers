@@ -58,4 +58,4 @@ To run tests run the command in directory root folder:
 
 .. highlight:: bash
     ::
-    pytest -v tests
+    $ pytest -v tests
