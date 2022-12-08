@@ -48,8 +48,8 @@ Let's create a game with RandomAI:
         else:
             print(game.board)
             print(game.state)
-
     
+
     if __name__ == '__main__':
         main()
 
